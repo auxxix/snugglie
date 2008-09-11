@@ -2,22 +2,24 @@
 /**
  * This file is part of Snugglie.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * Snugglie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * Snugglie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.snugglie.crypt;
 
 import java.io.IOException;
+
+import util.Util;
 
 import net.sf.l2j.loginserver.crypt.NewCrypt;
 import net.sf.l2j.util.Rnd;
@@ -79,23 +81,23 @@ public class LoginCrypt {
 			throws IOException {
 		// reserve checksum
 		size += 4;
-
-		if (_static) {
-			// reserve for XOR "key"
-			size += 4;
-
-			// padding
-			size += 8 - size % 8;
-			NewCrypt.encXORPass(raw, offset, size, Rnd.nextInt());
-			_staticCrypt.crypt(raw, offset, size);
-
-			_static = false;
-		} else {
-			// padding
-			size += 8 - size % 8;
-			NewCrypt.appendChecksum(raw, offset, size);
-			_crypt.crypt(raw, offset, size);
-		}
+		//
+		// if (_static) {
+		// // reserve for XOR "key"
+		// size += 4;
+		//
+		// // padding
+		// size += 8 - size % 8;
+		// NewCrypt.encXORPass(raw, offset, size, Rnd.nextInt());
+		// _staticCrypt.crypt(raw, offset, size);
+		//
+		// _static = false;
+		// } else {
+		// padding
+		size += 8 - size % 8;
+		NewCrypt.appendChecksum(raw, offset, size);
+		_crypt.crypt(raw, offset, size);
+		// }
 		return size;
 	}
 
@@ -113,33 +115,26 @@ public class LoginCrypt {
 	 * @param size
 	 */
 	public static void decXORPass(byte raw[], int offset, int size) {
+		System.out.print("Amit a decXORPass kap: ");
+		Util.printArray(System.out, "0x%02x ", raw, offset, size);
 		int pos = size - offset - 1;// - 4;
 		int ecx = 0;
 		ecx = (raw[pos--] & 0xff) << 24;
-		// System.out.printf("0x%02x\n", ecx);
 		ecx |= (raw[pos--] & 0xff) << 16;
-		// System.out.printf("0x%02x\n", ecx);
 		ecx |= (raw[pos--] & 0xff) << 8;
-		// System.out.printf("0x%02x\n", ecx);
 		ecx |= (raw[pos--] & 0xff);
-		// System.out.printf("deckey: 0x%02x\n", ecx);
+		System.out.printf("deckey: 0x%02x\n", ecx);
 		while (pos > 8) {
 			int edx = (raw[pos] & 0xff) << 24;
 			edx |= (raw[pos - 1] & 0xff) << 16;
 			edx |= (raw[pos - 2] & 0xff) << 8;
 			edx |= (raw[pos - 3] & 0xff);
-
-			// System.out.printf("ecx: 0x%x\n", ecx);
 			edx ^= ecx;
-			// System.out.printf("ki xorolt edx: 0x%x\n", edx);
-
-			// System.out.printf("xorolt edx: 0x%x\n", edx);
 			ecx -= edx;
 			raw[pos--] = (byte) (edx >> 24 & 0xff);
 			raw[pos--] = (byte) (edx >> 16 & 0xff);
 			raw[pos--] = (byte) (edx >> 8 & 0xff);
 			raw[pos--] = (byte) (edx & 0xff);
-			// System.out.println();
 		}
 	}
 }
