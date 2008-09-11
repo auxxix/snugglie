@@ -2,18 +2,18 @@
 /**
  * This file is part of Snugglie.
  *
- * Foobar is free software: you can redistribute it and/or modify
+ * Snugglie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Foobar is distributed in the hope that it will be useful,
+ * Snugglie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.snugglie.serverpackets;
 
@@ -22,9 +22,12 @@ import java.nio.ByteBuffer;
 
 import util.Util;
 
+import com.snugglie.SnugglieClient;
+import com.snugglie.clientpackets.AuthGameGuard;
 import com.snugglie.crypt.LoginCrypt;
 import com.snugglie.exception.WrongDataException;
-import com.snugglie.packets.ReceivablePacket;
+import com.snugglie.network.MMOConnection;
+import com.snugglie.network.ReceivablePacket;
 
 /**
  * Init packet, that is sent by the server for the first time the client
@@ -40,7 +43,7 @@ import com.snugglie.packets.ReceivablePacket;
  * @author peter.vizi
  * 
  */
-public class Init extends ReceivablePacket {
+public class Init extends ReceivablePacket<SnugglieClient> {
 
 	/**
 	 * Blowfish key of length 16.
@@ -51,11 +54,6 @@ public class Init extends ReceivablePacket {
 	 * Used for decrypting.
 	 */
 	protected LoginCrypt _lic;
-
-	/**
-	 * The ID of Init packets should be 0.
-	 */
-	private byte _packetId;
 
 	/**
 	 * Protocol revision.
@@ -75,25 +73,15 @@ public class Init extends ReceivablePacket {
 	/**
 	 * Two first bytes of the packet.
 	 */
-	protected int _size;
-
-	public Init(ByteBuffer bbuf) {
-		this.setByteBuffer(bbuf);
-		_lic = new LoginCrypt();
-		_publicKey = new byte[128];
-		_blowfishKey = new byte[16];
-		read();
-	}
-
-	/**
-	 * Return the packet id of Init packet, it should be 0.
-	 * 
-	 * @return the _packetId
-	 */
-	public byte getPacketId() {
-		return _packetId;
-	}
-
+	// protected int _size;
+	//
+	// public Init(ByteBuffer bbuf) {
+	// this.setByteBuffer(bbuf);
+	// _lic = new LoginCrypt();
+	// _publicKey = new byte[128];
+	// _blowfishKey = new byte[16];
+	// read();
+	// }
 	/**
 	 * Return the RSA public key, used for encription.
 	 * 
@@ -136,51 +124,61 @@ public class Init extends ReceivablePacket {
 	 * @return should be 186
 	 */
 	public int getSize() {
-		return _size;
+		return 186;
 	}
 
 	@Override
-	protected void read() {
+	protected boolean read() {
 		// System.out.print("received:   ");
-		_size = this.readH();
+		// _size = this.readH();
 		// Util.printArray(System.out, "0x%02x ", this.getByteBuffer().array(),
 		// 0,
 		// _size);
-		try {
-			// System.out.print("before dec: ");
-			// Util.printArray(System.out, "0x%02x ",
-			// this.getByteBuffer().array(), 0, _size);
-			_lic.decrypt(this.getByteBuffer().array(), 2, _size - 2);
-			// System.out.print("before xor: ");
-			// Util.printArray(System.out, "0x%02x ",
-			// this.getByteBuffer().array(), 0, _size);
-			LoginCrypt.decXORPass(this.getByteBuffer().array(), 2, _size - 2);
-			System.out.print("decrypterd: ");
-			Util.printArray(System.out, "0x%02x ",
-					this.getByteBuffer().array(), 0, _size);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		_packetId = (byte) this.readC();
+		// System.out.print("before dec: ");
+		// Util.printArray(System.out, "0x%02x ",
+		// this.getByteBuffer().array(), 0, _size);
+		// _lic.decrypt(this.getByteBuffer().array(), 2, _size - 2);
+		// System.out.print("before xor: ");
+		// Util.printArray(System.out, "0x%02x ",
+		// this.getByteBuffer().array(), 0, _size);
+		LoginCrypt.decXORPass(this.getByteBuffer().array(), 2, getSize() - 2);
+		System.out.print("xor decoded: ");
+		Util.printArray(System.out, "0x%02x ", this.getByteBuffer().array(), 0,
+				getSize());
 		_sessionId = this.readD();
+		System.out.printf("session id 0x%x\n", _sessionId);
+		_client.setSessionId(_sessionId);
 		_protocolRev = this.readD();
-		try {
-			if (_protocolRev != 0x0000c621) {
-				System.out.printf("0x%x\n", _protocolRev);
-				throw new WrongDataException();
-			}
-		} catch (WrongDataException e) {
-			e.printStackTrace();
+		System.out.printf("protocol rev 0x%x\n", _protocolRev);
+		// try {
+		if (_protocolRev != 0x0000c621) {
+			System.out.printf("0x%x\n", _protocolRev);
+			// throw new WrongDataException();
 		}
+		// } catch (WrongDataException e) {
+		// e.printStackTrace();
+		// }
 
+		_publicKey = new byte[128];
 		readB(_publicKey);
+		System.out.println("Public: ");
+		Util.printArray(System.out, "0x%02x ", _publicKey);
 		readD();
 		readD();
 		readD();
 		readD();
+		_blowfishKey = new byte[16];
 		readB(_blowfishKey);
+		System.out.print("Bfish: ");
+		Util.printArray(System.out, "0x%02x ", _blowfishKey);
+		return true;
+	}
 
+	@Override
+	public void run() {
+		_client.setPublicKey(_publicKey);
+		_client.setBlowfishKey(_blowfishKey);
+		_client.sendPacket(new AuthGameGuard());
 	}
 
 }

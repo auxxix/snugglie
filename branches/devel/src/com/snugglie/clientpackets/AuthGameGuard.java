@@ -15,20 +15,35 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.exception;
+package com.snugglie.clientpackets;
+
+import com.snugglie.SnugglieClient;
+import com.snugglie.network.SendablePacket;
 
 /**
- * This exception is raised when the packet received from the server contains
- * data that should be different.
- * 
  * @author peter.vizi
  * 
  */
-public class WrongDataException extends Exception {
+public class AuthGameGuard extends SendablePacket<SnugglieClient> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8074998782332963863L;
+	@Override
+	protected int getHeaderSize() {
+		return 2;
+	}
+
+	@Override
+	protected void write() {
+		writeC(0x07);
+		writeD(getClient().getSessionId());
+		writeD(1);
+		writeD(2);
+		writeD(3);
+		writeD(4);
+	}
+
+	@Override
+	protected void writeHeader(int dataSize) {
+		writeH(dataSize + this.getHeaderSize());
+	}
 
 }
