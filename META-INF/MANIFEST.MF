@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: UncleVader Plug-in
+Bundle-SymbolicName: UncleVader; singleton:=true
+Bundle-Version: 0.1
+Bundle-Activator: com.unclevader.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
