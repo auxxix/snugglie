@@ -34,6 +34,7 @@ import util.Util;
 import net.sf.l2j.gameserver.LoginServerThread.SessionKey;
 
 import com.snugglie.crypt.LoginCrypt;
+import com.snugglie.lserverpackets.ServerList.ServerData;
 import com.snugglie.network.MMOClient;
 import com.snugglie.network.MMOConnection;
 import com.snugglie.network.SendablePacket;
@@ -96,6 +97,7 @@ public class SnugglieClient extends MMOClient<MMOConnection<SnugglieClient>> {
 	protected String _password;
 	private int _loginOK1;
 	private int _loginOK2;
+	private ServerData _serverData;
 
 	/**
 	 * Create a new client, which uses the given connection.
@@ -258,5 +260,13 @@ public class SnugglieClient extends MMOClient<MMOConnection<SnugglieClient>> {
 
 	public void setLoginOK2(int value) {
 		_loginOK2 = value;
+	}
+
+	public void setServerData(ServerData data) {
+		_serverData = data;
+	}
+
+	public ServerData getServerData() {
+		return _serverData;
 	}
 };

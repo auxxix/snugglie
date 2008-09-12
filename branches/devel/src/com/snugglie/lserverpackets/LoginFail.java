@@ -15,20 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.serverpackets;
+package com.snugglie.lserverpackets;
+
+import net.sf.l2j.loginserver.serverpackets.LoginFail.LoginFailReason;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.SnugglieClient.ClientState;
-import com.snugglie.clientpackets.RequestAuthLogin;
 import com.snugglie.network.ReceivablePacket;
 
 /**
  * @author pvizi
  * 
  */
-public class GGauth extends ReceivablePacket<SnugglieClient> {
+public class LoginFail extends ReceivablePacket<SnugglieClient> {
 
-	protected int _response;
+	private LoginFailReason _reason;
 
 	/*
 	 * (non-Javadoc)
@@ -37,15 +37,16 @@ public class GGauth extends ReceivablePacket<SnugglieClient> {
 	 */
 	@Override
 	protected boolean read() {
-		// if (getAvaliableBytes() >= 40) {
-		_response = readD();
-		System.out.println("Response: " + _response);
-		return true;
-		// } else {
-		// System.err.println("Too short GGauth packet: "
-		// + getAvaliableBytes());
-		// return false;
-		// }
+		int id = readD();
+		boolean result = false;
+		for (LoginFailReason reason : LoginFailReason.values()) {
+			if (reason.getCode() == id) {
+				_reason = reason;
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -55,8 +56,7 @@ public class GGauth extends ReceivablePacket<SnugglieClient> {
 	 */
 	@Override
 	public void run() {
-		getClient().setState(ClientState.AUTHED_GG);
-		getClient().sendPacket(new RequestAuthLogin());
+		System.out.println("Login failed because of " + _reason.name());
 	}
 
 }
