@@ -15,26 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.serverpackets;
+package com.snugglie.lserverpackets;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.SnugglieClient.ClientState;
-import com.snugglie.clientpackets.RequestAuthLogin;
-import com.snugglie.clientpackets.RequestServerList;
+import com.snugglie.gclientpackets.ProtocolVersion;
 import com.snugglie.network.ReceivablePacket;
+import com.snugglie.network.SelectorThread;
 
 /**
- * The user sends the name and password in a {@link RequestAuthLogin} packet and
- * the server either displays the license to the user in this packet, or sends
- * the list of servers in a {@link ServerList} packet.
- * 
- * @author peter.vizi
+ * @author pvizi
  * 
  */
-public class LoginOK extends ReceivablePacket<SnugglieClient> {
+public class PlayOk extends ReceivablePacket<SnugglieClient> {
 
-	protected int _loginOkID1;
-	protected int _loginOkID2;
+	protected int _playOk1, _playOk2;
 
 	/*
 	 * (non-Javadoc)
@@ -43,8 +42,8 @@ public class LoginOK extends ReceivablePacket<SnugglieClient> {
 	 */
 	@Override
 	protected boolean read() {
-		_loginOkID1 = readD();
-		_loginOkID2 = readD();
+		_playOk1 = readD();
+		_playOk2 = readD();
 		return true;
 	}
 
@@ -55,11 +54,19 @@ public class LoginOK extends ReceivablePacket<SnugglieClient> {
 	 */
 	@Override
 	public void run() {
-		getClient().setState(ClientState.AUTH_SUCCESS);
-		getClient().setLoginOK1(_loginOkID1);
-		getClient().setLoginOK2(_loginOkID2);
-		System.out.println("Login ok, here's the license.");
-
-		getClient().sendPacket(new RequestServerList());
+		System.out.println("Yay! You can play on the server. What now?");
+		try {
+			SelectorThread<SnugglieClient> st = SelectorThread.getInstance();
+			st.openSocket(new InetSocketAddress(
+					getClient().getServerData()._ip, getClient()
+							.getServerData()._port), getClient());
+			System.out.println("Connected to "
+					+ getClient().getServerData()._ip + ":"
+					+ getClient().getServerData()._port);
+			getClient().sendPacket(new ProtocolVersion());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

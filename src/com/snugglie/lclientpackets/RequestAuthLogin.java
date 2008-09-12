@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.clientpackets;
+package com.snugglie.lclientpackets;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

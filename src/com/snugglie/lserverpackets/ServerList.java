@@ -15,14 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.serverpackets;
+package com.snugglie.lserverpackets;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.rmi.ServerError;
 import java.util.List;
 
 import javolution.util.FastList;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.clientpackets.RequestAuthLogin;
+import com.snugglie.lclientpackets.RequestAuthLogin;
+import com.snugglie.lclientpackets.RequestServerLogin;
 import com.snugglie.network.ReceivablePacket;
 
 /**
@@ -43,7 +48,7 @@ public class ServerList extends ReceivablePacket<SnugglieClient> {
 	 * @author peter.vizi
 	 * 
 	 */
-	class ServerData {
+	public class ServerData {
 		protected String _ip;
 		protected int _port;
 		protected boolean _pvp;
@@ -123,7 +128,23 @@ public class ServerList extends ReceivablePacket<SnugglieClient> {
 			System.out
 					.printf("Server %d is %d\n", data._serverId, data._status);
 		}
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Which server to use? ");
+		int i = 0;
+		try {
+			i = Integer.parseInt(br.readLine().trim());
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (ServerData data : _servers) {
+			if (data._serverId == i) {
+				getClient().setServerData(data);
+				break;
+			}
+		}
 
+		getClient().sendPacket(new RequestServerLogin(i));
 	}
-
 }

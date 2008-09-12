@@ -36,6 +36,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.snugglie.SnugglieClient;
+
 import util.Util;
 
 import javolution.util.FastList;
@@ -91,7 +93,21 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 	// ByteBuffers General Purpose Pool
 	private final FastList<ByteBuffer> _bufferPool = new FastList<ByteBuffer>();
 
-	public SelectorThread(SelectorConfig<T> sc, IMMOExecutor<T> executor,
+	protected static SelectorThread _selectorThread = null;
+
+	public static SelectorThread getInstance() {
+		return _selectorThread;
+	}
+
+	public static SelectorThread getInstance(SelectorConfig sc,
+			IMMOExecutor executor, IClientFactory clientFactory,
+			IAcceptFilter acceptFilter) throws IOException {
+		_selectorThread = new SelectorThread(sc, executor, clientFactory,
+				acceptFilter);
+		return _selectorThread;
+	}
+
+	private SelectorThread(SelectorConfig<T> sc, IMMOExecutor<T> executor,
 			IClientFactory<T> clientFactory, IAcceptFilter acceptFilter)
 			throws IOException {
 		HELPER_BUFFER_SIZE = sc.getHelperBufferSize();
@@ -956,6 +972,11 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 	 * @throws IOException
 	 */
 	public void openSocket(InetSocketAddress address) throws IOException {
+		openSocket(address, null);
+	}
+
+	public void openSocket(InetSocketAddress address,
+			MMOClient<MMOConnection<T>> client) throws IOException {
 		SocketChannel selectable = SocketChannel.open(address);
 		selectable.configureBlocking(false);
 
@@ -963,7 +984,7 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 
 		SelectionKey key = selectable.register(this.getSelector(),
 				SelectionKey.OP_READ);
-		createConnection(selectable, key);
+		createConnection(selectable, key, client);
 	}
 
 	/**
@@ -971,7 +992,8 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 	 * 
 	 * @param key
 	 */
-	protected void createConnection(SocketChannel sc, SelectionKey key) {
+	protected void createConnection(SocketChannel sc, SelectionKey key,
+			MMOClient<MMOConnection<T>> client) {
 		// try {
 		// while ((sc = ((ServerSocketChannel) key.channel()).accept()) != null)
 		// {
@@ -986,7 +1008,11 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 			//
 			MMOConnection<T> con = new MMOConnection<T>(this, new TCPSocket(sc
 					.socket()), key);
-			T client = this.getClientFactory().create(con);
+			if (client == null) {
+				client = this.getClientFactory().create(con);
+			} else {
+				client.setConnection(con);
+			}
 			key.attach(con);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

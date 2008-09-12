@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.serverpackets;
+package com.snugglie.lserverpackets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,9 +23,9 @@ import java.nio.ByteBuffer;
 import util.Util;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.clientpackets.AuthGameGuard;
 import com.snugglie.crypt.LoginCrypt;
 import com.snugglie.exception.WrongDataException;
+import com.snugglie.lclientpackets.AuthGameGuard;
 import com.snugglie.network.MMOConnection;
 import com.snugglie.network.ReceivablePacket;
 

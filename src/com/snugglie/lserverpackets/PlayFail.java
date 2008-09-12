@@ -15,50 +15,49 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.clientpackets;
+package com.snugglie.lserverpackets;
+
+import net.sf.l2j.loginserver.serverpackets.PlayFail.PlayFailReason;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.network.SendablePacket;
-import com.snugglie.serverpackets.LoginOK;
+import com.snugglie.network.ReceivablePacket;
 
 /**
- * After the server sends a {@link LoginOK} we can request the servers list.
- * 
- * @author peter.vizi
+ * @author pvizi
  * 
  */
-public class RequestServerList extends SendablePacket<SnugglieClient> {
+public class PlayFail extends ReceivablePacket<SnugglieClient> {
+
+	protected PlayFailReason _reason;
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.snugglie.network.SendablePacket#getHeaderSize()
+	 * @see com.snugglie.network.ReceivablePacket#read()
 	 */
 	@Override
-	protected int getHeaderSize() {
-		return 2;
+	protected boolean read() {
+		int code = readC();
+		boolean found = false;
+		for (PlayFailReason reason : PlayFailReason.values()) {
+			if (reason.getCode() == code) {
+				_reason = reason;
+				found = true;
+				break;
+			}
+		}
+		return found;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.snugglie.network.SendablePacket#write()
+	 * @see com.snugglie.network.ReceivablePacket#run()
 	 */
 	@Override
-	protected void write() {
-		writeC(0x05);
-		writeD(getClient().getLoginOK1());
-		writeD(getClient().getLoginOK2());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.snugglie.network.SendablePacket#writeHeader(int)
-	 */
-	@Override
-	protected void writeHeader(int dataSize) {
-		writeH(dataSize + this.getHeaderSize());
+	public void run() {
+		System.out.println("You can not connect to the server, because of "
+				+ _reason.name());
 	}
 
 }

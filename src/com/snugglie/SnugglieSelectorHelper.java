@@ -24,6 +24,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.snugglie.SnugglieClient.ClientState;
+import com.snugglie.lserverpackets.GGauth;
+import com.snugglie.lserverpackets.Init;
+import com.snugglie.lserverpackets.LoginFail;
+import com.snugglie.lserverpackets.LoginOK;
+import com.snugglie.lserverpackets.PlayFail;
+import com.snugglie.lserverpackets.PlayOk;
+import com.snugglie.lserverpackets.ServerList;
 import com.snugglie.network.HeaderInfo;
 import com.snugglie.network.IClientFactory;
 import com.snugglie.network.IMMOExecutor;
@@ -31,11 +38,6 @@ import com.snugglie.network.IPacketHandler;
 import com.snugglie.network.MMOConnection;
 import com.snugglie.network.ReceivablePacket;
 import com.snugglie.network.TCPHeaderHandler;
-import com.snugglie.serverpackets.GGauth;
-import com.snugglie.serverpackets.Init;
-import com.snugglie.serverpackets.LoginFail;
-import com.snugglie.serverpackets.LoginOK;
-import com.snugglie.serverpackets.ServerList;
 
 /**
  * @author peter.vizi
@@ -154,6 +156,12 @@ public class SnugglieSelectorHelper extends TCPHeaderHandler<SnugglieClient>
 		case AUTH_SUCCESS:
 			if (opcode == 0x04) { // we got a ServerList packet
 				packet = new ServerList();
+			} else if (opcode == 0x06) { // PlayFail
+				packet = new PlayFail();
+			} else if (opcode == 0x07) { // PlayOK
+				packet = new PlayOk();
+			} else {
+				debugOpcode(opcode, state);
 			}
 			break;
 		case AUTHED_LOGIN:

@@ -45,8 +45,8 @@ public class Snugglie {
 		SelectorConfig<SnugglieClient> ssc = new SelectorConfig<SnugglieClient>(
 				null, null, sh, sh);
 		try {
-			SelectorThread<SnugglieClient> selector = new SelectorThread<SnugglieClient>(
-					ssc, sh, sh, null);
+			SelectorThread<SnugglieClient> selector = SelectorThread
+					.getInstance(ssc, sh, sh, null);
 			selector.openSocket(new InetSocketAddress("127.0.0.1", 2106));
 			selector.start();
 		} catch (IOException e) {

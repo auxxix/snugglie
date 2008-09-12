@@ -15,48 +15,45 @@
  * You should have received a copy of the GNU General Public License
  * along with Snugglie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.snugglie.serverpackets;
-
-import net.sf.l2j.loginserver.serverpackets.LoginFail.LoginFailReason;
+package com.snugglie.gclientpackets;
 
 import com.snugglie.SnugglieClient;
-import com.snugglie.network.ReceivablePacket;
+import com.snugglie.network.SendablePacket;
 
 /**
  * @author pvizi
  * 
  */
-public class LoginFail extends ReceivablePacket<SnugglieClient> {
-
-	private LoginFailReason _reason;
+public class ProtocolVersion extends SendablePacket<SnugglieClient> {
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.snugglie.network.ReceivablePacket#read()
+	 * @see com.snugglie.network.SendablePacket#getHeaderSize()
 	 */
 	@Override
-	protected boolean read() {
-		int id = readD();
-		boolean result = false;
-		for (LoginFailReason reason : LoginFailReason.values()) {
-			if (reason.getCode() == id) {
-				_reason = reason;
-				result = true;
-				break;
-			}
-		}
-		return result;
+	protected int getHeaderSize() {
+		return 2;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.snugglie.network.ReceivablePacket#run()
+	 * @see com.snugglie.network.SendablePacket#write()
 	 */
 	@Override
-	public void run() {
-		System.out.println("Login failed because of " + _reason.name());
+	protected void write() {
+		writeD(851); // TODO this should be always the current protocol version
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.snugglie.network.SendablePacket#writeHeader(int)
+	 */
+	@Override
+	protected void writeHeader(int dataSize) {
+		writeH(dataSize + this.getHeaderSize());
 	}
 
 }

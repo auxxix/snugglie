@@ -17,7 +17,6 @@
  */
 package com.snugglie;
 
-import sun.security.krb5.internal.crypto.Des;
 import util.Util;
 
 /**
