@@ -14,30 +14,68 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            name="Perspective"
+            name="Uncle Vader"
             class="com.unclevader.Perspective"
-            id="UncleVader.perspective">
+            id="com.unclevader.perspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
-      <view
-            name="View"
-            class="com.unclevader.View"
-            id="UncleVader.view">
-      </view>
+         <category
+               id="com.unclevader.views"
+               name="Uncle Vader"/>
+          <view
+                allowMultiple="false"
+                category="com.unclevader.views"
+                class="com.unclevader.AccountsView"
+                icon="icons/vad.png"
+                id="com.unclevader.AccountsView"
+                name="Accounts"
+                restorable="true"/>
    </extension>
    <extension
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
-            application="UncleVader.application"
+            application="com.unclevader.application"
             name="Uncle Vader">
          <property
                name="windowImages"
-               value="icons/alt_window_16.gif,icons/alt_window_32.gif">
+               value="icons/vad.png,icons/van32.png,icons/van48.png">
+         </property>
+         <property
+               name="appName"
+               value="Uncle Vader">
+         </property>
+         <property
+               name="aboutImage"
+               value="icons/van48.png">
+         </property>
+         <property
+               name="aboutText"
+               value="You are using Uncle Vader.">
          </property>
       </product>
+   </extension>  
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+   </extension>
+   <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            class="com.unclevader.Activator"
+            label="Uncle Vader">
+      </consoleFactory>
+   </extension>
+   <extension
+         point="com.snugglie.exceptionhandler">
+         <handler
+               class="com.unclevader.SnugglieExceptionHandler"/>
+   </extension>
+   <extension
+         point="com.snugglie.packethandler">
+         <handler
+               class="com.unclevader.PacketHandler"/>
    </extension>
 
 </plugin>
