@@ -28,7 +28,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import sun.security.rsa.RSAKeyFactory;
 import util.Util;
 
 import net.sf.l2j.gameserver.LoginServerThread.SessionKey;
@@ -137,7 +136,7 @@ public class SnugglieClient extends MMOClient<MMOConnection<SnugglieClient>> {
 			// closeNow();
 		}
 		// throw new UnsupportedOperationException();
-		return true; // Major Problem!!!
+		return true; // XXX Major Problem!!!
 
 	}
 

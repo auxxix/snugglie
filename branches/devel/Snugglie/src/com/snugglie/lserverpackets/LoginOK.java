@@ -17,6 +17,7 @@
  */
 package com.snugglie.lserverpackets;
 
+import com.snugglie.Activator;
 import com.snugglie.SnugglieClient;
 import com.snugglie.SnugglieClient.ClientState;
 import com.snugglie.lclientpackets.RequestAuthLogin;
@@ -58,8 +59,9 @@ public class LoginOK extends ReceivablePacket<SnugglieClient> {
 		getClient().setState(ClientState.AUTH_SUCCESS);
 		getClient().setLoginOK1(_loginOkID1);
 		getClient().setLoginOK2(_loginOkID2);
-		System.out.println("Login ok, here's the license.");
+		Activator.msgStream.println("Login ok, here's the license.");
 
+		Activator.propagatePacket(this);
 		getClient().sendPacket(new RequestServerList());
 	}
 }

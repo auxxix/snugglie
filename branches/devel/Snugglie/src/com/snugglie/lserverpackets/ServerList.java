@@ -17,14 +17,11 @@
  */
 package com.snugglie.lserverpackets;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.rmi.ServerError;
 import java.util.List;
 
 import javolution.util.FastList;
 
+import com.snugglie.Activator;
 import com.snugglie.SnugglieClient;
 import com.snugglie.lclientpackets.RequestAuthLogin;
 import com.snugglie.lclientpackets.RequestServerLogin;
@@ -40,7 +37,15 @@ import com.snugglie.network.ReceivablePacket;
  */
 public class ServerList extends ReceivablePacket<SnugglieClient> {
 
+	public enum ServerName {
+		None, Bartz, Sieghardt, Kain
+	};
+
 	protected List<ServerData> _servers = new FastList<ServerData>();
+
+	public List<ServerData> getServers() {
+		return _servers;
+	}
 
 	/**
 	 * This class encapsulates the data about a server.
@@ -59,6 +64,18 @@ public class ServerList extends ReceivablePacket<SnugglieClient> {
 		protected boolean _clock;
 		protected int _status;
 		protected int _serverId;
+
+		public int getServerId() {
+			return _serverId;
+		}
+
+		public void setServerId(int serverId) {
+			_serverId = serverId;
+		}
+
+		public boolean getStatus() {
+			return _status == 1 ? true : false;
+		}
 
 		ServerData(String pIp, int pPort, boolean pPvp, boolean pTestServer,
 				int pCurrentPlayers, int pMaxPlayers, boolean pBrackets,
@@ -128,23 +145,28 @@ public class ServerList extends ReceivablePacket<SnugglieClient> {
 			System.out
 					.printf("Server %d is %d\n", data._serverId, data._status);
 		}
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Which server to use? ");
-		int i = 0;
-		try {
-			i = Integer.parseInt(br.readLine().trim());
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		for (ServerData data : _servers) {
-			if (data._serverId == i) {
-				getClient().setServerData(data);
-				break;
-			}
-		}
+		// BufferedReader br = new BufferedReader(new
+		// InputStreamReader(System.in));
+		// System.out.print("Which server to use? ");
+		// int i = 0;
+		// try {
+		// i = Integer.parseInt(br.readLine().trim());
+		// } catch (NumberFormatException e) {
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// for (ServerData data : _servers) {
+		// if (data._serverId == i) {
+		// getClient().setServerData(data);
+		// break;
+		// }
+		// }
 
-		getClient().sendPacket(new RequestServerLogin(i));
+		// TODO the handler has to set up the _serverId
+		Activator.propagatePacket(this);
+		// TODO gettert ide!
+		getClient().sendPacket(
+				new RequestServerLogin(getClient().getServerData()._serverId));
 	}
 }
