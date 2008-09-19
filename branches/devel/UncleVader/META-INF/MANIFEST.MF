@@ -1,10 +1,21 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: UncleVader Plug-in
-Bundle-SymbolicName: UncleVader; singleton:=true
+Bundle-Name: UncleVader
+Bundle-SymbolicName: com.unclevader;singleton:=true
 Bundle-Version: 0.1
 Bundle-Activator: com.unclevader.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console;bundle-version="3.3.0",
+ com.snugglie;bundle-version="0.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: lib/sqlitejdbc-v053.jar,
+ .
+Export-Package: com.unclevader,
+ com.unclevader.action,
+ com.unclevader.window,
+ org.ibex.nestedvm,
+ org.ibex.nestedvm.util,
+ org.sqlite
+Bundle-Vendor: Peter Vizi
