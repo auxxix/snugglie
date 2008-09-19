@@ -52,6 +52,8 @@ public class SnugglieSelectorHelper extends TCPHeaderHandler<SnugglieClient>
 	protected String _password;
 	protected String _user;
 
+	public SnugglieClient _client;
+
 	public SnugglieSelectorHelper(String user, String password) {
 		super(null);
 		_packetThreadPool = new ThreadPoolExecutor(4, 6, 15L, TimeUnit.SECONDS,
@@ -62,7 +64,11 @@ public class SnugglieSelectorHelper extends TCPHeaderHandler<SnugglieClient>
 
 	@Override
 	public SnugglieClient create(MMOConnection<SnugglieClient> con) {
-		return new SnugglieClient(con, getUser(), getPassword());
+		// return new SnugglieClient(con, getUser(), getPassword());
+		if (_client == null) {
+			_client = new SnugglieClient(con, getUser(), getPassword());
+		}
+		return _client;
 	}
 
 	protected void debugOpcode(int opcode, ClientState state) {

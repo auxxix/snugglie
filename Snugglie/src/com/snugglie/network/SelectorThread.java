@@ -969,13 +969,14 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 	 * Opens the socket to the server.
 	 * 
 	 * @param address
+	 * @return 
 	 * @throws IOException
 	 */
-	public void openSocket(InetSocketAddress address) throws IOException {
-		openSocket(address, null);
+	public MMOClient<MMOConnection<T>> openSocket(InetSocketAddress address) throws IOException {
+		return openSocket(address, null);
 	}
 
-	public void openSocket(InetSocketAddress address,
+	public MMOClient<MMOConnection<T>> openSocket(InetSocketAddress address,
 			MMOClient<MMOConnection<T>> client) throws IOException {
 		SocketChannel selectable = SocketChannel.open(address);
 		selectable.configureBlocking(false);
@@ -984,7 +985,7 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 
 		SelectionKey key = selectable.register(this.getSelector(),
 				SelectionKey.OP_READ);
-		createConnection(selectable, key, client);
+		return createConnection(selectable, key, client);
 	}
 
 	/**
@@ -992,7 +993,7 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 	 * 
 	 * @param key
 	 */
-	protected void createConnection(SocketChannel sc, SelectionKey key,
+	protected MMOClient<MMOConnection<T>> createConnection(SocketChannel sc, SelectionKey key,
 			MMOClient<MMOConnection<T>> client) {
 		// try {
 		// while ((sc = ((ServerSocketChannel) key.channel()).accept()) != null)
@@ -1018,6 +1019,8 @@ public class SelectorThread<T extends MMOClient> extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return client;
 
 		// } else {
 		// sc.socket().close();
